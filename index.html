@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#17130e">
+  <title>Heroes III Tournament Ledger</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="hero">
+    <div>
+      <p class="eyebrow">Heroes of Might and Magic III</p>
+      <h1>Tournament Ledger</h1>
+      <p class="subtitle">Nine heroes. Five battles per pairing. One champion.</p>
+    </div>
+    <div class="hero-actions">
+      <button id="editPlayersButton" class="button" type="button">Edit players</button>
+      <button id="exportButton" class="button" type="button">Export JSON</button>
+      <button id="importButton" class="button" type="button">Import JSON</button>
+      <input id="importFileInput" type="file" accept=".json,application/json" hidden>
+      <button id="resetButton" class="button button-danger" type="button">Reset results</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="summary-bar" aria-label="Tournament progress">
+      <div>
+        <span class="summary-label">Battles recorded</span>
+        <strong id="recordedGames">0 / 180</strong>
+      </div>
+      <div class="progress-track" aria-hidden="true">
+        <span id="progressBar"></span>
+      </div>
+      <div>
+        <span class="summary-label">Current leader</span>
+        <strong id="leaderName">No battles yet</strong>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Head-to-head</p>
+          <h2>Battle grid</h2>
+        </div>
+        <p>Choose any matchup to record its five games.</p>
+      </div>
+      <div class="table-scroll">
+        <table id="tournamentGrid" class="tournament-grid"></table>
+      </div>
+      <div class="legend">
+        <span><i class="legend-dot complete"></i> Complete</span>
+        <span><i class="legend-dot partial"></i> In progress</span>
+        <span><i class="legend-dot empty"></i> Not started</span>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Faction performance</p>
+          <h2>Town statistics</h2>
+        </div>
+        <p>Every completed game counts once for each town used.</p>
+      </div>
+      <div id="townStats" class="town-stats"></div>
+    </section>
+
+    <section class="panel">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Hero mastery</p>
+          <h2>Player records by town</h2>
+        </div>
+        <p>Each town column displays wins–losses.</p>
+      </div>
+      <div class="table-scroll">
+        <table id="playerTownStats" class="stats-table"></table>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="matchDialog" class="dialog match-dialog">
+    <form id="matchForm" method="dialog">
+      <div class="dialog-header">
+        <div>
+          <p class="eyebrow">Five-game series</p>
+          <h2 id="matchTitle">Matchup</h2>
+        </div>
+        <button class="icon-button" value="cancel" aria-label="Close" type="submit">&times;</button>
+      </div>
+      <div id="gameEditors" class="game-editors"></div>
+      <div class="dialog-actions">
+        <button id="clearMatchButton" class="button button-quiet" type="button">Clear matchup</button>
+        <button class="button button-quiet" value="cancel" type="submit">Cancel</button>
+        <button id="saveMatchButton" class="button button-primary" value="default" type="submit">Save battles</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="playersDialog" class="dialog players-dialog">
+    <form id="playersForm" method="dialog">
+      <div class="dialog-header">
+        <div>
+          <p class="eyebrow">Tournament roster</p>
+          <h2>Edit players</h2>
+        </div>
+        <button class="icon-button" value="cancel" aria-label="Close" type="submit">&times;</button>
+      </div>
+      <div id="playerInputs" class="player-inputs"></div>
+      <div class="dialog-actions">
+        <button class="button button-quiet" value="cancel" type="submit">Cancel</button>
+        <button class="button button-primary" value="default" type="submit">Save names</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
