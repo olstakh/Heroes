@@ -1,0 +1,640 @@
+{
+  "version": 2,
+  "exportedAt": "2026-08-02T18:39:26.459Z",
+  "tournament": {
+    "players": [
+      "Aida",
+      "Inkwizitor",
+      "LegendaryFaust",
+      "AlMag",
+      "Miller999",
+      "Duplet",
+      "Pianisto",
+      "Djigit1982",
+      "DoorsTreasures"
+    ],
+    "matches": {
+      "0-2": [
+        {
+          "townA": "Bulwark",
+          "townB": "Factory",
+          "winner": "B"
+        },
+        {
+          "townA": "Bulwark",
+          "townB": "Necropolis",
+          "winner": "B"
+        },
+        {
+          "townA": "Dungeon",
+          "townB": "Inferno",
+          "winner": "B"
+        },
+        {
+          "townA": "Necropolis",
+          "townB": "Dungeon",
+          "winner": "B"
+        },
+        {
+          "townA": "Rampart",
+          "townB": "Dungeon",
+          "winner": "B"
+        }
+      ],
+      "2-5": [
+        {
+          "townA": "Inferno",
+          "townB": "Bulwark",
+          "winner": "A"
+        },
+        {
+          "townA": "Rampart",
+          "townB": "Fortress",
+          "winner": "A"
+        },
+        {
+          "townA": "Factory",
+          "townB": "Dungeon",
+          "winner": "B"
+        },
+        {
+          "townA": "Castle",
+          "townB": "Necropolis",
+          "winner": "A"
+        },
+        {
+          "townA": "Tower",
+          "townB": "Dungeon",
+          "winner": "B"
+        }
+      ],
+      "3-4": [
+        {
+          "townA": "Tower",
+          "townB": "Conflux",
+          "winner": "A"
+        },
+        {
+          "townA": "Tower",
+          "townB": "Dungeon",
+          "winner": "A"
+        },
+        {
+          "townA": "Castle",
+          "townB": "Stronghold",
+          "winner": "A"
+        },
+        {
+          "townA": "Factory",
+          "townB": "Cove",
+          "winner": "A"
+        },
+        {
+          "townA": "Castle",
+          "townB": "Castle",
+          "winner": "A"
+        }
+      ],
+      "4-5": [
+        {
+          "townA": "Fortress",
+          "townB": "Conflux",
+          "winner": "A"
+        },
+        {
+          "townA": "Stronghold",
+          "townB": "Factory",
+          "winner": "B"
+        },
+        {
+          "townA": "Cove",
+          "townB": "Factory",
+          "winner": "B"
+        },
+        {
+          "townA": "Dungeon",
+          "townB": "Cove",
+          "winner": "A"
+        },
+        {
+          "townA": "Tower",
+          "townB": "Inferno",
+          "winner": "B"
+        }
+      ],
+      "3-5": [
+        {
+          "townA": "Factory",
+          "townB": "Dungeon",
+          "winner": "B"
+        },
+        {
+          "townA": "Stronghold",
+          "townB": "Bulwark",
+          "winner": "A"
+        },
+        {
+          "townA": "Stronghold",
+          "townB": "Dungeon",
+          "winner": "A"
+        },
+        {
+          "townA": "Rampart",
+          "townB": "Dungeon",
+          "winner": "B"
+        },
+        {
+          "townA": "Cove",
+          "townB": "Inferno",
+          "winner": "B"
+        }
+      ],
+      "3-7": [
+        {
+          "townA": "Bulwark",
+          "townB": "Inferno",
+          "winner": "B"
+        },
+        {
+          "townA": "Cove",
+          "townB": "Inferno",
+          "winner": "A"
+        },
+        {
+          "townA": "Cove",
+          "townB": "Rampart",
+          "winner": "A"
+        },
+        {
+          "townA": "Conflux",
+          "townB": "Bulwark",
+          "winner": "A"
+        },
+        {
+          "townA": "Cove",
+          "townB": "Factory",
+          "winner": "A"
+        }
+      ],
+      "5-7": [
+        {
+          "townA": "Bulwark",
+          "townB": "Tower",
+          "winner": "B"
+        },
+        {
+          "townA": "Necropolis",
+          "townB": "Inferno",
+          "winner": "A"
+        },
+        {
+          "townA": "Dungeon",
+          "townB": "Bulwark",
+          "winner": "A"
+        },
+        {
+          "townA": "Fortress",
+          "townB": "Dungeon",
+          "winner": "B"
+        },
+        {
+          "townA": "Rampart",
+          "townB": "Cove",
+          "winner": "B"
+        }
+      ],
+      "0-5": [
+        {
+          "townA": "Castle",
+          "townB": "Fortress",
+          "winner": "A"
+        },
+        {
+          "townA": "Fortress",
+          "townB": "Factory",
+          "winner": "B"
+        },
+        {
+          "townA": "Necropolis",
+          "townB": "Castle",
+          "winner": "B"
+        },
+        {
+          "townA": "Cove",
+          "townB": "Dungeon",
+          "winner": "B"
+        },
+        {
+          "townA": "Fortress",
+          "townB": "Cove",
+          "winner": "B"
+        }
+      ],
+      "0-4": [
+        {
+          "townA": "Tower",
+          "townB": "Bulwark",
+          "winner": "A"
+        },
+        {
+          "townA": "Conflux",
+          "townB": "Castle",
+          "winner": "B"
+        },
+        {
+          "townA": "Fortress",
+          "townB": "Necropolis",
+          "winner": "A"
+        },
+        {
+          "townA": "Fortress",
+          "townB": "Conflux",
+          "winner": "A"
+        },
+        {
+          "townA": "Rampart",
+          "townB": "Stronghold",
+          "winner": "A"
+        }
+      ],
+      "4-6": [
+        {
+          "townA": "Rampart",
+          "townB": "Dungeon",
+          "winner": "A"
+        },
+        {
+          "townA": "Fortress",
+          "townB": "Castle",
+          "winner": "A"
+        },
+        {
+          "townA": "Rampart",
+          "townB": "Stronghold",
+          "winner": "A"
+        },
+        {
+          "townA": "Bulwark",
+          "townB": "Castle",
+          "winner": "B"
+        },
+        {
+          "townA": "Castle",
+          "townB": "Factory",
+          "winner": "A"
+        }
+      ],
+      "0-3": [
+        {
+          "townA": "Stronghold",
+          "townB": "Rampart",
+          "winner": "A"
+        },
+        {
+          "townA": "Bulwark",
+          "townB": "Stronghold",
+          "winner": "A"
+        },
+        {
+          "townA": "Fortress",
+          "townB": "Cove",
+          "winner": "B"
+        },
+        {
+          "townA": "Rampart",
+          "townB": "Stronghold",
+          "winner": "B"
+        },
+        {
+          "townA": "Necropolis",
+          "townB": "Rampart",
+          "winner": "A"
+        }
+      ],
+      "1-7": [
+        {
+          "townA": "Necropolis",
+          "townB": "Inferno",
+          "winner": "B"
+        },
+        {
+          "townA": "Dungeon",
+          "townB": "Fortress",
+          "winner": "B"
+        },
+        {
+          "townA": "Castle",
+          "townB": "Tower",
+          "winner": "B"
+        },
+        {
+          "townA": "Necropolis",
+          "townB": "Tower",
+          "winner": "B"
+        },
+        {
+          "townA": "Necropolis",
+          "townB": "Inferno",
+          "winner": "B"
+        }
+      ],
+      "0-1": [
+        {
+          "townA": "Stronghold",
+          "townB": "Conflux",
+          "winner": "B"
+        },
+        {
+          "townA": "Inferno",
+          "townB": "Factory",
+          "winner": "A"
+        },
+        {
+          "townA": "Necropolis",
+          "townB": "Castle",
+          "winner": "A"
+        },
+        {
+          "townA": "Conflux",
+          "townB": "Inferno",
+          "winner": "B"
+        },
+        {
+          "townA": "Factory",
+          "townB": "Stronghold",
+          "winner": "A"
+        }
+      ],
+      "1-5": [
+        {
+          "townA": "Necropolis",
+          "townB": "Tower",
+          "winner": "B"
+        },
+        {
+          "townA": "Rampart",
+          "townB": "Inferno",
+          "winner": "A"
+        },
+        {
+          "townA": "Cove",
+          "townB": "Stronghold",
+          "winner": "A"
+        },
+        {
+          "townA": "Tower",
+          "townB": "Necropolis",
+          "winner": "A"
+        },
+        {
+          "townA": "Necropolis",
+          "townB": "Conflux",
+          "winner": "B"
+        }
+      ],
+      "3-6": [
+        {
+          "townA": "Stronghold",
+          "townB": "Bulwark",
+          "winner": "A"
+        },
+        {
+          "townA": "Cove",
+          "townB": "Fortress",
+          "winner": "A"
+        },
+        {
+          "townA": "Conflux",
+          "townB": "Necropolis",
+          "winner": "A"
+        },
+        {
+          "townA": "Inferno",
+          "townB": "Rampart",
+          "winner": "A"
+        },
+        {
+          "townA": "Stronghold",
+          "townB": "Stronghold",
+          "winner": "A"
+        }
+      ],
+      "5-6": [
+        {
+          "townA": "Castle",
+          "townB": "Bulwark",
+          "winner": "A"
+        },
+        {
+          "townA": "Cove",
+          "townB": "Conflux",
+          "winner": "A"
+        },
+        {
+          "townA": "Fortress",
+          "townB": "Necropolis",
+          "winner": "B"
+        },
+        {
+          "townA": "Rampart",
+          "townB": "Rampart",
+          "winner": "A"
+        },
+        {
+          "townA": "Necropolis",
+          "townB": "Factory",
+          "winner": "A"
+        }
+      ],
+      "5-8": [
+        {
+          "townA": "Inferno",
+          "townB": "Bulwark",
+          "winner": "B"
+        },
+        {
+          "townA": "Dungeon",
+          "townB": "Cove",
+          "winner": "A"
+        },
+        {
+          "townA": "Cove",
+          "townB": "Rampart",
+          "winner": "A"
+        },
+        {
+          "townA": "Castle",
+          "townB": "Castle",
+          "winner": "B"
+        },
+        {
+          "townA": "Dungeon",
+          "townB": "Dungeon",
+          "winner": "A"
+        }
+      ],
+      "4-8": [
+        {
+          "townA": "Dungeon",
+          "townB": "Fortress",
+          "winner": "A"
+        },
+        {
+          "townA": "Stronghold",
+          "townB": "Necropolis",
+          "winner": "A"
+        },
+        {
+          "townA": "Inferno",
+          "townB": "Rampart",
+          "winner": "B"
+        },
+        {
+          "townA": "Tower",
+          "townB": "Rampart",
+          "winner": "B"
+        },
+        {
+          "townA": "Inferno",
+          "townB": "Rampart",
+          "winner": "A"
+        }
+      ],
+      "2-6": [
+        {
+          "townA": "Factory",
+          "townB": "Tower",
+          "winner": "B"
+        },
+        {
+          "townA": "Factory",
+          "townB": "Rampart",
+          "winner": "A"
+        },
+        {
+          "townA": "Necropolis",
+          "townB": "Bulwark",
+          "winner": "A"
+        },
+        {
+          "townA": "Factory",
+          "townB": "Conflux",
+          "winner": "A"
+        },
+        {
+          "townA": "Factory",
+          "townB": "Castle",
+          "winner": "A"
+        }
+      ],
+      "1-2": [
+        {
+          "townA": "Inferno",
+          "townB": "Tower",
+          "winner": "A"
+        },
+        {
+          "townA": "Inferno",
+          "townB": "Inferno",
+          "winner": "B"
+        },
+        {
+          "townA": "Castle",
+          "townB": "Tower",
+          "winner": "A"
+        },
+        {
+          "townA": "Necropolis",
+          "townB": "Dungeon",
+          "winner": "A"
+        },
+        {
+          "townA": "Rampart",
+          "townB": "Cove",
+          "winner": "B"
+        }
+      ],
+      "4-7": [
+        {
+          "townA": "Factory",
+          "townB": "Factory",
+          "winner": "A"
+        },
+        {
+          "townA": "Tower",
+          "townB": "Fortress",
+          "winner": "A"
+        },
+        {
+          "townA": "Cove",
+          "townB": "Stronghold",
+          "winner": "A"
+        },
+        {
+          "townA": "Inferno",
+          "townB": "Castle",
+          "winner": "A"
+        },
+        {
+          "townA": "Factory",
+          "townB": "Inferno",
+          "winner": "B"
+        }
+      ],
+      "3-8": [
+        {
+          "townA": "Rampart",
+          "townB": "Inferno",
+          "winner": "A"
+        },
+        {
+          "townA": "Factory",
+          "townB": "Tower",
+          "winner": "B"
+        },
+        {
+          "townA": "Rampart",
+          "townB": "Conflux",
+          "winner": "A"
+        },
+        {
+          "townA": "",
+          "townB": "",
+          "winner": null
+        },
+        {
+          "townA": "",
+          "townB": "",
+          "winner": null
+        }
+      ],
+      "7-8": [
+        {
+          "townA": "Stronghold",
+          "townB": "Stronghold",
+          "winner": "B"
+        },
+        {
+          "townA": "Dungeon",
+          "townB": "Fortress",
+          "winner": "A"
+        },
+        {
+          "townA": "",
+          "townB": "",
+          "winner": null
+        },
+        {
+          "townA": "",
+          "townB": "",
+          "winner": null
+        },
+        {
+          "townA": "",
+          "townB": "",
+          "winner": null
+        }
+      ]
+    }
+  }
+}
