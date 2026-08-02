@@ -2,24 +2,7 @@ const DEFAULT_PLAYER_COUNT = 9;
 const MIN_PLAYER_COUNT = 2;
 const GAMES_PER_MATCH = 5;
 const STORAGE_KEY = "heroes3-tournament-ledger-v1";
-
-const towns = [
-  "Bulwark",
-  "Castle",
-  "Conflux",
-  "Cove",
-  "Dungeon",
-  "Factory",
-  "Fortress",
-  "Inferno",
-  "Necropolis",
-  "Rampart",
-  "Stronghold",
-  "Tower"
-].map((name) => ({
-  name,
-  image: `Towns/Town_portrait_${name}_small.png`
-}));
+const towns = window.HEROES_TOWNS;
 
 const defaultState = () => ({
   players: Array.from({ length: DEFAULT_PLAYER_COUNT }, (_, index) => `Player ${index + 1}`),
