@@ -31,6 +31,7 @@ let activeMatch = null;
 
 const grid = document.querySelector("#tournamentGrid");
 const townStatsContainer = document.querySelector("#townStats");
+const townMatchupStats = document.querySelector("#townMatchupStats");
 const playerTownStats = document.querySelector("#playerTownStats");
 const recordedGames = document.querySelector("#recordedGames");
 const progressBar = document.querySelector("#progressBar");
@@ -84,6 +85,7 @@ function saveState() {
 function render() {
   renderGrid();
   renderTownStats();
+  renderTownMatchupStats();
   renderPlayerTownStats();
   renderSummary();
 }
@@ -370,6 +372,71 @@ function renderTownStats() {
         </div>
       </article>`;
   }).join("");
+}
+
+function calculateTownMatchupStats() {
+  const stats = Object.fromEntries(towns.map((rowTown) => [
+    rowTown.name,
+    Object.fromEntries(towns.map((columnTown) => [
+      columnTown.name,
+      { wins: 0, losses: 0 }
+    ]))
+  ]));
+
+  Object.values(state.matches).forEach((games) => {
+    games.forEach((game) => {
+      if (!game.winner || !game.townA || !game.townB) return;
+      const townAWon = game.winner === "A";
+      stats[game.townA][game.townB][townAWon ? "wins" : "losses"] += 1;
+      stats[game.townB][game.townA][townAWon ? "losses" : "wins"] += 1;
+    });
+  });
+
+  return stats;
+}
+
+function renderTownMatchupStats() {
+  const stats = calculateTownMatchupStats();
+  const totals = calculateTownStats();
+  const townHeaders = towns.map((town) => `
+    <th class="stats-town-heading" scope="col">
+      <img src="${town.image}" alt="">
+      ${town.name}
+    </th>`).join("");
+
+  const rows = towns.map((rowTown) => {
+    const matchupCells = towns.map((columnTown) => {
+      const record = stats[rowTown.name][columnTown.name];
+      const mirrorClass = rowTown.name === columnTown.name ? " mirror-matchup" : "";
+      return `
+        <td class="${mirrorClass.trim()}">
+          <span class="record-wins">${record.wins}</span>–<span class="record-losses">${record.losses}</span>
+        </td>`;
+    }).join("");
+    const total = totals[rowTown.name];
+
+    return `
+      <tr>
+        <th scope="row">
+          <span class="town-row-label">
+            <img src="${rowTown.image}" alt="">
+            ${rowTown.name}
+          </span>
+        </th>
+        ${matchupCells}
+        <td><span class="record-wins">${total.wins}</span>–<span class="record-losses">${total.losses}</span></td>
+      </tr>`;
+  }).join("");
+
+  townMatchupStats.innerHTML = `
+    <thead>
+      <tr>
+        <th scope="col">Town</th>
+        ${townHeaders}
+        <th scope="col">Overall</th>
+      </tr>
+    </thead>
+    <tbody>${rows}</tbody>`;
 }
 
 function calculatePlayerTownStats() {

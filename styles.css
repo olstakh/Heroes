@@ -457,6 +457,24 @@ table {
   object-fit: cover;
 }
 
+.town-row-label {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.town-row-label img {
+  width: 42px;
+  height: 28px;
+  object-fit: cover;
+}
+
+.town-matchup-table .mirror-matchup {
+  background:
+    linear-gradient(135deg, transparent 49%, rgb(217 173 86 / 12%) 50%, transparent 51%),
+    #1d1710;
+}
+
 .record-wins {
   color: #83bd8b;
 }
