@@ -1,4 +1,5 @@
-const PLAYER_COUNT = 9;
+const DEFAULT_PLAYER_COUNT = 9;
+const MIN_PLAYER_COUNT = 2;
 const GAMES_PER_MATCH = 5;
 const STORAGE_KEY = "heroes3-tournament-ledger-v1";
 
@@ -21,7 +22,7 @@ const towns = [
 }));
 
 const defaultState = () => ({
-  players: Array.from({ length: PLAYER_COUNT }, (_, index) => `Player ${index + 1}`),
+  players: Array.from({ length: DEFAULT_PLAYER_COUNT }, (_, index) => `Player ${index + 1}`),
   matches: {}
 });
 
@@ -44,6 +45,8 @@ const playerInputs = document.querySelector("#playerInputs");
 const importFileInput = document.querySelector("#importFileInput");
 
 document.querySelector("#editPlayersButton").addEventListener("click", openPlayersDialog);
+document.querySelector("#addPlayerButton").addEventListener("click", addPlayerInput);
+playerInputs.addEventListener("click", removePlayerInput);
 document.querySelector("#exportButton").addEventListener("click", exportTournament);
 document.querySelector("#importButton").addEventListener("click", () => importFileInput.click());
 importFileInput.addEventListener("change", importTournament);
@@ -60,9 +63,10 @@ function loadState() {
     if (
       saved &&
       Array.isArray(saved.players) &&
-      saved.players.length === PLAYER_COUNT &&
+      saved.players.length >= MIN_PLAYER_COUNT &&
       saved.matches &&
-      typeof saved.matches === "object"
+      typeof saved.matches === "object" &&
+      !Array.isArray(saved.matches)
     ) {
       return saved;
     }
@@ -427,7 +431,8 @@ function renderPlayerTownStats() {
 }
 
 function renderSummary() {
-  const maximumGames = (PLAYER_COUNT * (PLAYER_COUNT - 1) / 2) * GAMES_PER_MATCH;
+  const playerCount = state.players.length;
+  const maximumGames = (playerCount * (playerCount - 1) / 2) * GAMES_PER_MATCH;
   const completedGames = Object.values(state.matches)
     .flat()
     .filter((game) => game.winner).length;
@@ -449,12 +454,50 @@ function renderSummary() {
 }
 
 function openPlayersDialog() {
-  playerInputs.innerHTML = state.players.map((player, index) => `
-    <label>
-      Player ${index + 1}
-      <input name="player-${index}" value="${escapeHtml(player)}" maxlength="30" required>
-    </label>`).join("");
+  populatePlayerInputs();
   playersDialog.showModal();
+}
+
+function populatePlayerInputs() {
+  playerInputs.innerHTML = state.players
+    .map((player, index) => playerInputTemplate(player, index))
+    .join("");
+  refreshPlayerEditor();
+}
+
+function playerInputTemplate(player, originalIndex = "") {
+  return `
+    <div class="player-entry" data-original-index="${originalIndex}">
+      <label>
+        <span class="player-number"></span>
+        <input value="${escapeHtml(player)}" maxlength="30" required>
+      </label>
+      <button class="button button-quiet remove-player-button" type="button" data-remove-player>
+        Remove
+      </button>
+    </div>`;
+}
+
+function addPlayerInput() {
+  const nextNumber = playerInputs.querySelectorAll(".player-entry").length + 1;
+  playerInputs.insertAdjacentHTML("beforeend", playerInputTemplate(`Player ${nextNumber}`));
+  refreshPlayerEditor();
+  playerInputs.lastElementChild.querySelector("input").focus();
+}
+
+function removePlayerInput(event) {
+  const button = event.target.closest("[data-remove-player]");
+  if (!button) return;
+  button.closest(".player-entry").remove();
+  refreshPlayerEditor();
+}
+
+function refreshPlayerEditor() {
+  const entries = [...playerInputs.querySelectorAll(".player-entry")];
+  entries.forEach((entry, index) => {
+    entry.querySelector(".player-number").textContent = `Player ${index + 1}`;
+    entry.querySelector("[data-remove-player]").disabled = entries.length <= MIN_PLAYER_COUNT;
+  });
 }
 
 function savePlayerNames(event) {
@@ -464,13 +507,64 @@ function savePlayerNames(event) {
     return;
   }
 
-  const formData = new FormData(playersForm);
-  state.players = state.players.map((_, index) =>
-    String(formData.get(`player-${index}`)).trim() || `Player ${index + 1}`
+  const entries = [...playerInputs.querySelectorAll(".player-entry")];
+  const players = entries.map((entry) => entry.querySelector("input").value.trim());
+  const invalidPlayerIndex = players.findIndex((player) => !player);
+  if (invalidPlayerIndex !== -1) {
+    window.alert(`Enter a name for player ${invalidPlayerIndex + 1}.`);
+    entries[invalidPlayerIndex].querySelector("input").focus();
+    return;
+  }
+
+  const retainedOriginalIndexes = new Set(
+    entries
+      .map((entry) => entry.dataset.originalIndex)
+      .filter((index) => index !== "")
+      .map(Number)
   );
+  const removedIndexes = state.players
+    .map((_, index) => index)
+    .filter((index) => !retainedOriginalIndexes.has(index));
+
+  if (removedIndexes.length && removedPlayersHaveMatches(removedIndexes)) {
+    const removedNames = removedIndexes.map((index) => state.players[index]).join(", ");
+    if (!window.confirm(`Remove ${removedNames} and discard all of their recorded matchups?`)) {
+      populatePlayerInputs();
+      return;
+    }
+  }
+
+  const oldToNewIndex = new Map();
+  entries.forEach((entry, newIndex) => {
+    if (entry.dataset.originalIndex !== "") {
+      oldToNewIndex.set(Number(entry.dataset.originalIndex), newIndex);
+    }
+  });
+
+  const matches = {};
+  Object.entries(state.matches).forEach(([key, games]) => {
+    const [oldPlayerA, oldPlayerB] = key.split("-").map(Number);
+    if (!oldToNewIndex.has(oldPlayerA) || !oldToNewIndex.has(oldPlayerB)) return;
+    const newPlayerA = oldToNewIndex.get(oldPlayerA);
+    const newPlayerB = oldToNewIndex.get(oldPlayerB);
+    matches[matchKey(newPlayerA, newPlayerB)] = games;
+  });
+
+  state = { players, matches };
   saveState();
   render();
   playersDialog.close();
+}
+
+function removedPlayersHaveMatches(removedIndexes) {
+  const removed = new Set(removedIndexes);
+  return Object.entries(state.matches).some(([key, games]) => {
+    const [playerA, playerB] = key.split("-").map(Number);
+    return (
+      (removed.has(playerA) || removed.has(playerB)) &&
+      games.some((game) => game.winner || game.townA || game.townB)
+    );
+  });
 }
 
 function resetResults() {
@@ -482,7 +576,7 @@ function resetResults() {
 
 function exportTournament() {
   const exportData = {
-    version: 1,
+    version: 2,
     exportedAt: new Date().toISOString(),
     tournament: state
   };
@@ -530,12 +624,12 @@ function validateImportedState(importedState) {
 
   if (
     !Array.isArray(importedState.players) ||
-    importedState.players.length !== PLAYER_COUNT ||
+    importedState.players.length < MIN_PLAYER_COUNT ||
     importedState.players.some((player) =>
       typeof player !== "string" || !player.trim() || player.length > 30
     )
   ) {
-    throw new Error(`exactly ${PLAYER_COUNT} valid player names are required.`);
+    throw new Error(`at least ${MIN_PLAYER_COUNT} valid player names are required.`);
   }
 
   if (
@@ -550,8 +644,15 @@ function validateImportedState(importedState) {
   const matches = {};
 
   for (const [key, games] of Object.entries(importedState.matches)) {
-    const match = /^([0-8])-([0-8])$/.exec(key);
-    if (!match || Number(match[1]) >= Number(match[2])) {
+    const match = /^(\d+)-(\d+)$/.exec(key);
+    const playerA = match ? Number(match[1]) : -1;
+    const playerB = match ? Number(match[2]) : -1;
+    if (
+      !match ||
+      playerA >= playerB ||
+      playerA < 0 ||
+      playerB >= importedState.players.length
+    ) {
       throw new Error(`"${key}" is not a valid matchup.`);
     }
     if (!Array.isArray(games) || games.length !== GAMES_PER_MATCH) {
