@@ -108,10 +108,9 @@ export async function loadCloudTournament(
 }
 
 export function loadCloudConnection(): CloudTournamentConnection | null {
-  const saved = localStorage.getItem(CLOUD_CONNECTION_KEY);
-  if (!saved) return null;
-
   try {
+    const saved = localStorage.getItem(CLOUD_CONNECTION_KEY);
+    if (!saved) return null;
     const value = JSON.parse(saved) as unknown;
     if (
       typeof value === "object" &&
