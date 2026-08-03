@@ -127,17 +127,13 @@ export function TournamentPage({ tournamentId }: TournamentPageProps) {
     let cancelled = false;
     setLinkedStatus("loading");
     setLinkedError("");
+    setCloudName("");
 
     void loadCloudTournament(tournamentId)
       .then((tournament) => {
         if (cancelled) return;
         setState(tournament.state);
-        saveTournament(tournament.state);
         setCloudName(tournament.name);
-        if (cloudConnection?.tournamentId !== tournament.id) {
-          clearCloudConnection();
-          setCloudConnection(null);
-        }
         setLinkedStatus("loaded");
       })
       .catch((error: unknown) => {
@@ -194,7 +190,9 @@ export function TournamentPage({ tournamentId }: TournamentPageProps) {
 
   function commitState(nextState: TournamentState): void {
     setState(nextState);
-    saveTournament(nextState);
+    if (!tournamentId) {
+      saveTournament(nextState);
+    }
   }
 
   function openMatch(playerOne: number, playerTwo: number): void {
@@ -359,10 +357,16 @@ export function TournamentPage({ tournamentId }: TournamentPageProps) {
   }
 
   function openCloudDialog(mode: CloudDialogMode): void {
+    const activeTournamentId =
+      tournamentId ?? cloudConnection?.tournamentId ?? "";
+    const matchingEditKey =
+      cloudConnection?.tournamentId === activeTournamentId
+        ? cloudConnection.editKey
+        : "";
     setCloudMessage("");
     setCloudDraft({
-      tournamentId: cloudConnection?.tournamentId ?? "",
-      editKey: mode === "save" ? cloudConnection?.editKey ?? "" : "",
+      tournamentId: activeTournamentId,
+      editKey: mode === "save" ? matchingEditKey : "",
       masterKey: "",
       name: cloudName || "Heroes III Tournament"
     });
