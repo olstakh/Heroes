@@ -1,0 +1,36 @@
+{
+  "name": "heroes",
+  "version": "1.0.0",
+  "description": "Heroes III tournament and casual game statistics tracker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "typecheck": "tsc -b",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/olstakh/Heroes.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/olstakh/Heroes/issues"
+  },
+  "homepage": "https://github.com/olstakh/Heroes#readme",
+  "dependencies": {
+    "react": "19.1.1",
+    "react-dom": "19.1.1",
+    "zod": "4.1.12"
+  },
+  "devDependencies": {
+    "@types/react": "19.1.16",
+    "@types/react-dom": "19.1.9",
+    "@vitejs/plugin-react": "6.0.4",
+    "typescript": "5.9.3",
+    "vite": "8.1.5"
+  }
+}

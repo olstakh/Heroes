@@ -31,7 +31,8 @@ body {
 
 button,
 input,
-select {
+select,
+textarea {
   font: inherit;
 }
 
@@ -662,9 +663,26 @@ table {
   box-shadow: 0 25px 100px rgb(0 0 0 / 75%);
 }
 
+.modal-backdrop {
+  position: fixed;
+  z-index: 20;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgb(5 3 2 / 78%);
+  backdrop-filter: blur(3px);
+}
+
 .dialog::backdrop {
   background: rgb(5 3 2 / 78%);
   backdrop-filter: blur(3px);
+}
+
+.modal-backdrop .dialog {
+  display: flex;
+  max-height: calc(100vh - 2rem);
+  flex-direction: column;
 }
 
 .dialog form {
