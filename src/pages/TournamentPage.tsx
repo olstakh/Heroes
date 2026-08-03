@@ -58,6 +58,7 @@ interface RosterEntry {
 interface CloudDraft {
   tournamentId: string;
   editKey: string;
+  masterKey: string;
   name: string;
 }
 
@@ -95,6 +96,7 @@ export function TournamentPage() {
   const [cloudDraft, setCloudDraft] = useState<CloudDraft>({
     tournamentId: "",
     editKey: "",
+    masterKey: "",
     name: "Heroes III Tournament"
   });
   const [cloudBusy, setCloudBusy] = useState(false);
@@ -309,6 +311,7 @@ export function TournamentPage() {
     setCloudDraft({
       tournamentId: cloudConnection?.tournamentId ?? "",
       editKey: mode === "save" ? cloudConnection?.editKey ?? "" : "",
+      masterKey: "",
       name: cloudName || "Heroes III Tournament"
     });
     setCloudDialogMode(mode);
@@ -366,12 +369,14 @@ export function TournamentPage() {
       if (!name) {
         throw new Error("Enter a name for the cloud tournament.");
       }
-      const connection = await createCloudTournament(name, state);
+      const masterKey = cloudDraft.masterKey.trim();
+      const connection = await createCloudTournament(name, masterKey, state);
       setCloudConnection(connection);
       setCloudName(name);
       setCloudDraft({
         tournamentId: connection.tournamentId,
         editKey: connection.editKey,
+        masterKey: "",
         name
       });
       const storageWarning = rememberCloudConnection(connection);
@@ -1039,27 +1044,37 @@ function CloudTournamentDialog({
             <input
               value={draft.tournamentId}
               placeholder="00000000-0000-0000-0000-000000000000"
-              onChange={(event) =>
-                onChange({ ...draft, tournamentId: event.target.value })
-              }
+              onChange={(event) => {
+                const tournamentId = event.target.value;
+                onChange({
+                  ...draft,
+                  tournamentId
+                });
+              }}
             />
           </label>
           {mode === "save" && (
             <label className="form-field">
-              <span>Edit key</span>
+              <span>
+                {creating ? "Master creation key" : "Tournament edit key"}
+              </span>
               <input
                 type="password"
-                value={draft.editKey}
+                value={creating ? draft.masterKey : draft.editKey}
                 autoComplete="off"
                 placeholder={
                   creating
-                    ? "Generated when the tournament is created"
+                    ? "Required to create a new tournament"
                     : "Required to update this tournament"
                 }
-                readOnly={creating}
-                onChange={(event) =>
-                  onChange({ ...draft, editKey: event.target.value })
-                }
+                onChange={(event) => {
+                  const value = event.target.value;
+                  onChange(
+                    creating
+                      ? { ...draft, masterKey: value }
+                      : { ...draft, editKey: value }
+                  );
+                }}
               />
             </label>
           )}

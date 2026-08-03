@@ -21,13 +21,18 @@ export interface CloudTournamentConnection {
 
 export async function createCloudTournament(
   name: string,
+  masterKey: string,
   state: TournamentState
 ): Promise<CloudTournamentConnection> {
+  if (masterKey.length < 32) {
+    throw new Error("Enter the tournament master creation key.");
+  }
   const editKey = generateEditKey();
   const { data, error } = await getSupabaseClient().rpc(
     "create_cloud_tournament",
     {
       p_name: name,
+      p_master_key: masterKey,
       p_edit_key: editKey,
       p_state: state
     }
