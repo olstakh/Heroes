@@ -27,6 +27,16 @@ import {
   loadTournament,
   saveTournament
 } from "../services/storage";
+import {
+  clearCloudConnection,
+  createCloudTournament,
+  loadCloudConnection,
+  loadCloudTournament,
+  saveCloudConnection,
+  saveCloudTournament,
+  type CloudTournamentConnection
+} from "../services/cloudTournaments";
+import { isSupabaseConfigured } from "../services/supabase";
 import { downloadJson, readJsonFile } from "../utils/files";
 import {
   calculateTownMatchups,
@@ -44,6 +54,15 @@ interface RosterEntry {
   originalIndex: number | null;
   name: string;
 }
+
+interface CloudDraft {
+  tournamentId: string;
+  editKey: string;
+  masterKey: string;
+  name: string;
+}
+
+type CloudDialogMode = "load" | "save";
 
 function matchKey(playerA: number, playerB: number): string {
   return `${Math.min(playerA, playerB)}-${Math.max(playerA, playerB)}`;
@@ -69,6 +88,19 @@ export function TournamentPage() {
   const [activeMatch, setActiveMatch] = useState<ActiveMatch | null>(null);
   const [matchDraft, setMatchDraft] = useState<TournamentGame[]>([]);
   const [rosterDraft, setRosterDraft] = useState<RosterEntry[] | null>(null);
+  const [cloudConnection, setCloudConnection] =
+    useState<CloudTournamentConnection | null>(loadCloudConnection);
+  const [cloudName, setCloudName] = useState("");
+  const [cloudDialogMode, setCloudDialogMode] =
+    useState<CloudDialogMode | null>(null);
+  const [cloudDraft, setCloudDraft] = useState<CloudDraft>({
+    tournamentId: "",
+    editKey: "",
+    masterKey: "",
+    name: "Heroes III Tournament"
+  });
+  const [cloudBusy, setCloudBusy] = useState(false);
+  const [cloudMessage, setCloudMessage] = useState("");
   const importInputRef = useRef<HTMLInputElement>(null);
 
   const resolvedGames = useMemo(() => getResolvedGames(state), [state]);
@@ -274,6 +306,90 @@ export function TournamentPage() {
     commitState({ ...state, matches: {} });
   }
 
+  function openCloudDialog(mode: CloudDialogMode): void {
+    setCloudMessage("");
+    setCloudDraft({
+      tournamentId: cloudConnection?.tournamentId ?? "",
+      editKey: mode === "save" ? cloudConnection?.editKey ?? "" : "",
+      masterKey: "",
+      name: cloudName || "Heroes III Tournament"
+    });
+    setCloudDialogMode(mode);
+  }
+
+  async function handleCloudLoad(): Promise<void> {
+    const tournamentId = cloudDraft.tournamentId.trim();
+    setCloudBusy(true);
+    setCloudMessage("");
+    try {
+      const tournament = await loadCloudTournament(tournamentId);
+      if (
+        !window.confirm(
+          `Replace the current local tournament with “${tournament.name}” from the cloud?`
+        )
+      ) {
+        return;
+      }
+
+      commitState(tournament.state);
+      setCloudName(tournament.name);
+      if (cloudConnection?.tournamentId !== tournament.id) {
+        clearCloudConnection();
+        setCloudConnection(null);
+      }
+      setCloudDialogMode(null);
+      window.alert(
+        `Loaded “${tournament.name}”. Last updated ${new Date(tournament.updatedAt).toLocaleString()}.`
+      );
+    } catch (error) {
+      setCloudMessage(getValidationMessage(error));
+    } finally {
+      setCloudBusy(false);
+    }
+  }
+
+  async function handleCloudSave(): Promise<void> {
+    setCloudBusy(true);
+    setCloudMessage("");
+    try {
+      const tournamentId = cloudDraft.tournamentId.trim();
+      const editKey = cloudDraft.editKey.trim();
+      if (tournamentId) {
+        const connection = { tournamentId, editKey };
+        const savedAt = await saveCloudTournament(connection, state);
+        setCloudConnection(connection);
+        const storageWarning = rememberCloudConnection(connection);
+        setCloudMessage(
+          `Saved successfully at ${new Date(savedAt).toLocaleString()}.${storageWarning}`
+        );
+        return;
+      }
+
+      const name = cloudDraft.name.trim();
+      if (!name) {
+        throw new Error("Enter a name for the cloud tournament.");
+      }
+      const masterKey = cloudDraft.masterKey.trim();
+      const connection = await createCloudTournament(name, masterKey, state);
+      setCloudConnection(connection);
+      setCloudName(name);
+      setCloudDraft({
+        tournamentId: connection.tournamentId,
+        editKey: connection.editKey,
+        masterKey: "",
+        name
+      });
+      const storageWarning = rememberCloudConnection(connection);
+      setCloudMessage(
+        `Cloud tournament created. Copy and keep the tournament ID and edit key.${storageWarning}`
+      );
+    } catch (error) {
+      setCloudMessage(getValidationMessage(error));
+    } finally {
+      setCloudBusy(false);
+    }
+  }
+
   return (
     <Layout
       activePage="tournament"
@@ -301,6 +417,32 @@ export function TournamentPage() {
             onChange={(event) => void importTournament(event)}
             hidden
           />
+          <button
+            className="button"
+            type="button"
+            disabled={!isSupabaseConfigured}
+            title={
+              isSupabaseConfigured
+                ? "Load a public tournament from Supabase"
+                : "Supabase is not configured"
+            }
+            onClick={() => openCloudDialog("load")}
+          >
+            Load cloud
+          </button>
+          <button
+            className="button"
+            type="button"
+            disabled={!isSupabaseConfigured}
+            title={
+              isSupabaseConfigured
+                ? "Create or update a cloud tournament"
+                : "Supabase is not configured"
+            }
+            onClick={() => openCloudDialog("save")}
+          >
+            Save cloud
+          </button>
           <button
             className="button button-danger"
             type="button"
@@ -400,8 +542,33 @@ export function TournamentPage() {
           onSave={saveRoster}
         />
       )}
+
+      {cloudDialogMode && (
+        <CloudTournamentDialog
+          mode={cloudDialogMode}
+          draft={cloudDraft}
+          busy={cloudBusy}
+          message={cloudMessage}
+          onChange={setCloudDraft}
+          onCancel={() => setCloudDialogMode(null)}
+          onLoad={() => void handleCloudLoad()}
+          onSave={() => void handleCloudSave()}
+        />
+      )}
     </Layout>
   );
+}
+
+function rememberCloudConnection(
+  connection: CloudTournamentConnection
+): string {
+  try {
+    saveCloudConnection(connection);
+    return "";
+  } catch (error) {
+    console.warn("Could not save cloud credentials in this browser.", error);
+    return " This browser could not remember the credentials, so copy them now.";
+  }
 }
 
 interface PlayerTotal {
@@ -809,6 +976,147 @@ function PlayerTownTable({
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+interface CloudTournamentDialogProps {
+  mode: CloudDialogMode;
+  draft: CloudDraft;
+  busy: boolean;
+  message: string;
+  onChange: (draft: CloudDraft) => void;
+  onCancel: () => void;
+  onLoad: () => void;
+  onSave: () => void;
+}
+
+function CloudTournamentDialog({
+  mode,
+  draft,
+  busy,
+  message,
+  onChange,
+  onCancel,
+  onLoad,
+  onSave
+}: CloudTournamentDialogProps) {
+  useEscapeKey(onCancel);
+  const creating = mode === "save" && !draft.tournamentId.trim();
+
+  async function copyCredentials(): Promise<void> {
+    try {
+      await navigator.clipboard.writeText(
+        `Tournament ID: ${draft.tournamentId}\nEdit key: ${draft.editKey}`
+      );
+    } catch {
+      window.alert("Could not copy automatically. Copy the values from the fields.");
+    }
+  }
+
+  return (
+    <div className="modal-backdrop" role="presentation">
+      <div className="dialog cloud-dialog" role="dialog" aria-modal="true">
+        <div className="dialog-header">
+          <div>
+            <p className="eyebrow">Supabase storage</p>
+            <h2>{mode === "load" ? "Load cloud tournament" : "Save to cloud"}</h2>
+          </div>
+          <button className="icon-button" aria-label="Close" type="button" onClick={onCancel}>
+            ×
+          </button>
+        </div>
+        <div className="cloud-fields">
+          {creating && (
+            <label className="form-field">
+              <span>Tournament name</span>
+              <input
+                value={draft.name}
+                maxLength={100}
+                onChange={(event) =>
+                  onChange({ ...draft, name: event.target.value })
+                }
+              />
+            </label>
+          )}
+          <label className="form-field">
+            <span>
+              Tournament ID {mode === "save" ? "(leave empty to create)" : ""}
+            </span>
+            <input
+              value={draft.tournamentId}
+              placeholder="00000000-0000-0000-0000-000000000000"
+              onChange={(event) => {
+                const tournamentId = event.target.value;
+                onChange({
+                  ...draft,
+                  tournamentId
+                });
+              }}
+            />
+          </label>
+          {mode === "save" && (
+            <label className="form-field">
+              <span>
+                {creating ? "Master creation key" : "Tournament edit key"}
+              </span>
+              <input
+                type="password"
+                value={creating ? draft.masterKey : draft.editKey}
+                autoComplete="off"
+                placeholder={
+                  creating
+                    ? "Required to create a new tournament"
+                    : "Required to update this tournament"
+                }
+                onChange={(event) => {
+                  const value = event.target.value;
+                  onChange(
+                    creating
+                      ? { ...draft, masterKey: value }
+                      : { ...draft, editKey: value }
+                  );
+                }}
+              />
+            </label>
+          )}
+          {message && (
+            <p className="cloud-message" role="status">{message}</p>
+          )}
+          {draft.tournamentId && draft.editKey && message.includes("created") && (
+            <button
+              className="button button-quiet"
+              type="button"
+              onClick={() => void copyCredentials()}
+            >
+              Copy ID and edit key
+            </button>
+          )}
+          <p className="cloud-warning">
+            Anyone with the edit key can overwrite this tournament until
+            administrator authentication replaces temporary key access.
+          </p>
+        </div>
+        <div className="dialog-actions">
+          <button className="button button-quiet" type="button" onClick={onCancel}>
+            Close
+          </button>
+          <button
+            className="button button-primary"
+            type="button"
+            disabled={busy}
+            onClick={mode === "load" ? onLoad : onSave}
+          >
+            {busy
+              ? "Working…"
+              : mode === "load"
+                ? "Load tournament"
+                : creating
+                  ? "Create and save"
+                  : "Save tournament"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function useEscapeKey(onEscape: () => void): void {
