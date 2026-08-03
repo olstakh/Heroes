@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { getAppBasePath } from "../utils/routing";
 
 interface LayoutProps {
   activePage: "tournament" | "casual";
@@ -15,6 +16,7 @@ export function Layout({
   actions,
   children
 }: LayoutProps) {
+  const appBasePath = getAppBasePath();
   return (
     <>
       <header className="hero">
@@ -25,14 +27,14 @@ export function Layout({
           <nav className="page-nav" aria-label="Game tracker sections">
             <a
               className={`nav-link ${activePage === "tournament" ? "active" : ""}`}
-              href="#/tournament"
+              href={appBasePath}
               aria-current={activePage === "tournament" ? "page" : undefined}
             >
               Tournament
             </a>
             <a
               className={`nav-link ${activePage === "casual" ? "active" : ""}`}
-              href="#/casual"
+              href={`${appBasePath}#/casual`}
               aria-current={activePage === "casual" ? "page" : undefined}
             >
               Casual games
