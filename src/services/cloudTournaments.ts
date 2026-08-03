@@ -19,6 +19,13 @@ export interface CloudTournamentConnection {
   editKey: string;
 }
 
+export class CloudTournamentNotFoundError extends Error {
+  constructor() {
+    super("Tournament not found.");
+    this.name = "CloudTournamentNotFoundError";
+  }
+}
+
 export async function createCloudTournament(
   name: string,
   masterKey: string,
@@ -83,6 +90,9 @@ export async function loadCloudTournament(
     .eq("id", tournamentId)
     .single();
 
+  if (error?.code === "PGRST116") {
+    throw new CloudTournamentNotFoundError();
+  }
   if (error) throw new Error(error.message);
   if (!isCloudTournamentRow(data)) {
     throw new Error("Supabase returned invalid tournament data.");
@@ -98,10 +108,9 @@ export async function loadCloudTournament(
 }
 
 export function loadCloudConnection(): CloudTournamentConnection | null {
-  const saved = localStorage.getItem(CLOUD_CONNECTION_KEY);
-  if (!saved) return null;
-
   try {
+    const saved = localStorage.getItem(CLOUD_CONNECTION_KEY);
+    if (!saved) return null;
     const value = JSON.parse(saved) as unknown;
     if (
       typeof value === "object" &&

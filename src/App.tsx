@@ -1,21 +1,22 @@
 import { useEffect, useState } from "react";
 import { CasualGamesPage } from "./pages/CasualGamesPage";
 import { TournamentPage } from "./pages/TournamentPage";
-
-type Page = "tournament" | "casual";
-
-function getPage(): Page {
-  return window.location.hash === "#/casual" ? "casual" : "tournament";
-}
+import { getAppRoute, type AppRoute } from "./utils/routing";
 
 export function App() {
-  const [page, setPage] = useState<Page>(getPage);
+  const [route, setRoute] = useState<AppRoute>(getAppRoute);
 
   useEffect(() => {
-    const handleHashChange = () => setPage(getPage());
-    window.addEventListener("hashchange", handleHashChange);
-    return () => window.removeEventListener("hashchange", handleHashChange);
+    const handleLocationChange = () => setRoute(getAppRoute());
+    window.addEventListener("hashchange", handleLocationChange);
+    window.addEventListener("popstate", handleLocationChange);
+    return () => {
+      window.removeEventListener("hashchange", handleLocationChange);
+      window.removeEventListener("popstate", handleLocationChange);
+    };
   }, []);
 
-  return page === "casual" ? <CasualGamesPage /> : <TournamentPage />;
+  return route.page === "casual"
+    ? <CasualGamesPage />
+    : <TournamentPage tournamentId={route.tournamentId} />;
 }

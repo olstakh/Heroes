@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Opening tournament…</title>
+</head>
+<body>
+  <p>Opening tournament…</p>
+  <script>
+    (function redirectToApplication() {
+      var appBase = "/Heroes/";
+      var target =
+        window.location.pathname +
+        window.location.search +
+        window.location.hash;
+      window.location.replace(
+        window.location.origin +
+        appBase +
+        "?redirect=" +
+        encodeURIComponent(target)
+      );
+    })();
+  </script>
+</body>
+</html>

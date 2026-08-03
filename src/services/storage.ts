@@ -53,10 +53,9 @@ function loadValidated<T>(
   parse: (input: unknown) => T,
   fallback: T
 ): T {
-  const saved = localStorage.getItem(key);
-  if (!saved) return fallback;
-
   try {
+    const saved = localStorage.getItem(key);
+    if (!saved) return fallback;
     return parse(JSON.parse(saved));
   } catch (error) {
     console.warn(`Could not load data from ${key}.`, error);

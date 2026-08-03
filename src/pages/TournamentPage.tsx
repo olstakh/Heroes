@@ -28,6 +28,7 @@ import {
   saveTournament
 } from "../services/storage";
 import {
+  CloudTournamentNotFoundError,
   clearCloudConnection,
   createCloudTournament,
   loadCloudConnection,
@@ -38,6 +39,11 @@ import {
 } from "../services/cloudTournaments";
 import { isSupabaseConfigured } from "../services/supabase";
 import { downloadJson, readJsonFile } from "../utils/files";
+import {
+  getAppBasePath,
+  getTournamentUrl,
+  navigateToTournament
+} from "../utils/routing";
 import {
   calculateTownMatchups,
   calculateTownStats,
@@ -63,6 +69,11 @@ interface CloudDraft {
 }
 
 type CloudDialogMode = "load" | "save";
+type LinkedTournamentStatus = "idle" | "loading" | "loaded" | "not-found" | "error";
+
+interface TournamentPageProps {
+  tournamentId?: string | undefined;
+}
 
 function matchKey(playerA: number, playerB: number): string {
   return `${Math.min(playerA, playerB)}-${Math.max(playerA, playerB)}`;
@@ -83,7 +94,7 @@ function getResolvedGames(state: TournamentState): ResolvedGame[] {
   );
 }
 
-export function TournamentPage() {
+export function TournamentPage({ tournamentId }: TournamentPageProps) {
   const [state, setState] = useState<TournamentState>(loadTournament);
   const [activeMatch, setActiveMatch] = useState<ActiveMatch | null>(null);
   const [matchDraft, setMatchDraft] = useState<TournamentGame[]>([]);
@@ -101,7 +112,44 @@ export function TournamentPage() {
   });
   const [cloudBusy, setCloudBusy] = useState(false);
   const [cloudMessage, setCloudMessage] = useState("");
+  const [linkedStatus, setLinkedStatus] =
+    useState<LinkedTournamentStatus>(tournamentId ? "loading" : "idle");
+  const [linkedError, setLinkedError] = useState("");
   const importInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!tournamentId) {
+      setLinkedStatus("idle");
+      setLinkedError("");
+      return;
+    }
+
+    let cancelled = false;
+    setLinkedStatus("loading");
+    setLinkedError("");
+    setCloudName("");
+
+    void loadCloudTournament(tournamentId)
+      .then((tournament) => {
+        if (cancelled) return;
+        setState(tournament.state);
+        setCloudName(tournament.name);
+        setLinkedStatus("loaded");
+      })
+      .catch((error: unknown) => {
+        if (cancelled) return;
+        if (error instanceof CloudTournamentNotFoundError) {
+          setLinkedStatus("not-found");
+          return;
+        }
+        setLinkedError(getValidationMessage(error));
+        setLinkedStatus("error");
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [tournamentId]);
 
   const resolvedGames = useMemo(() => getResolvedGames(state), [state]);
   const townStats = useMemo(
@@ -142,7 +190,9 @@ export function TournamentPage() {
 
   function commitState(nextState: TournamentState): void {
     setState(nextState);
-    saveTournament(nextState);
+    if (!tournamentId) {
+      saveTournament(nextState);
+    }
   }
 
   function openMatch(playerOne: number, playerTwo: number): void {
@@ -307,10 +357,16 @@ export function TournamentPage() {
   }
 
   function openCloudDialog(mode: CloudDialogMode): void {
+    const activeTournamentId =
+      tournamentId ?? cloudConnection?.tournamentId ?? "";
+    const matchingEditKey =
+      cloudConnection?.tournamentId === activeTournamentId
+        ? cloudConnection.editKey
+        : "";
     setCloudMessage("");
     setCloudDraft({
-      tournamentId: cloudConnection?.tournamentId ?? "",
-      editKey: mode === "save" ? cloudConnection?.editKey ?? "" : "",
+      tournamentId: activeTournamentId,
+      editKey: mode === "save" ? matchingEditKey : "",
       masterKey: "",
       name: cloudName || "Heroes III Tournament"
     });
@@ -338,6 +394,7 @@ export function TournamentPage() {
         setCloudConnection(null);
       }
       setCloudDialogMode(null);
+      navigateToTournament(tournament.id);
       window.alert(
         `Loaded “${tournament.name}”. Last updated ${new Date(tournament.updatedAt).toLocaleString()}.`
       );
@@ -383,6 +440,7 @@ export function TournamentPage() {
       setCloudMessage(
         `Cloud tournament created. Copy and keep the tournament ID and edit key.${storageWarning}`
       );
+      navigateToTournament(connection.tournamentId);
     } catch (error) {
       setCloudMessage(getValidationMessage(error));
     } finally {
@@ -393,7 +451,7 @@ export function TournamentPage() {
   return (
     <Layout
       activePage="tournament"
-      title="Tournament Ledger"
+      title={cloudName || "Tournament Ledger"}
       subtitle="Every hero faces every rival in five battles."
       actions={
         <>
@@ -453,6 +511,14 @@ export function TournamentPage() {
         </>
       }
     >
+      {tournamentId && linkedStatus !== "loaded" ? (
+        <LinkedTournamentNotice
+          status={linkedStatus}
+          tournamentId={tournamentId}
+          error={linkedError}
+        />
+      ) : (
+        <>
       <section className="summary-bar" aria-label="Tournament progress">
         <div>
           <span className="summary-label">Battles recorded</span>
@@ -521,6 +587,8 @@ export function TournamentPage() {
           totals={playerTotals}
         />
       </section>
+        </>
+      )}
 
       {activeMatch && (
         <MatchEditor
@@ -556,6 +624,50 @@ export function TournamentPage() {
         />
       )}
     </Layout>
+  );
+}
+
+interface LinkedTournamentNoticeProps {
+  status: LinkedTournamentStatus;
+  tournamentId: string;
+  error: string;
+}
+
+function LinkedTournamentNotice({
+  status,
+  tournamentId,
+  error
+}: LinkedTournamentNoticeProps) {
+  const isLoading = status === "loading";
+  const isNotFound = status === "not-found";
+  return (
+    <section className="panel route-message">
+      <p className="eyebrow">
+        {isLoading ? "Loading from Supabase" : "Cloud tournament"}
+      </p>
+      <h2>
+        {isLoading
+          ? "Opening tournament…"
+          : isNotFound
+            ? "Tournament not found"
+            : "Could not load tournament"}
+      </h2>
+      <p>
+        {isLoading
+          ? "The latest tournament results are being loaded."
+          : isNotFound
+            ? "Check that the link is complete and that the tournament still exists."
+            : error || "An unexpected cloud error occurred."}
+      </p>
+      {!isLoading && (
+        <p className="route-id">Tournament ID: {tournamentId}</p>
+      )}
+      {!isLoading && (
+        <a className="button route-home-link" href={getAppBasePath()}>
+          Open local tournament
+        </a>
+      )}
+    </section>
   );
 }
 
@@ -1005,7 +1117,7 @@ function CloudTournamentDialog({
   async function copyCredentials(): Promise<void> {
     try {
       await navigator.clipboard.writeText(
-        `Tournament ID: ${draft.tournamentId}\nEdit key: ${draft.editKey}`
+        `Tournament link: ${getTournamentUrl(draft.tournamentId)}\nTournament ID: ${draft.tournamentId}\nEdit key: ${draft.editKey}`
       );
     } catch {
       window.alert("Could not copy automatically. Copy the values from the fields.");
@@ -1082,13 +1194,23 @@ function CloudTournamentDialog({
             <p className="cloud-message" role="status">{message}</p>
           )}
           {draft.tournamentId && draft.editKey && message.includes("created") && (
-            <button
-              className="button button-quiet"
-              type="button"
-              onClick={() => void copyCredentials()}
-            >
-              Copy ID and edit key
-            </button>
+            <div className="cloud-created-actions">
+              <a
+                className="button button-quiet"
+                href={getTournamentUrl(draft.tournamentId)}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Open shareable link
+              </a>
+              <button
+                className="button button-quiet"
+                type="button"
+                onClick={() => void copyCredentials()}
+              >
+                Copy link, ID and edit key
+              </button>
+            </div>
           )}
           <p className="cloud-warning">
             Anyone with the edit key can overwrite this tournament until
