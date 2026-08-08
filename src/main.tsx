@@ -1,6 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { App } from "./App";
+import { AuthProvider } from "./auth/AuthContext";
 import "./styles.css";
 
 const root = document.querySelector<HTMLDivElement>("#root");
@@ -10,6 +11,8 @@ if (!root) {
 
 createRoot(root).render(
   <StrictMode>
-    <App />
+    <AuthProvider>
+      <App />
+    </AuthProvider>
   </StrictMode>
 );

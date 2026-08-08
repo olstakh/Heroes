@@ -121,6 +121,94 @@ h2 {
   gap: 0.75rem;
 }
 
+.hero-controls {
+  display: grid;
+  gap: 0.8rem;
+  justify-items: end;
+}
+
+.account-control {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--muted);
+  font-family: "Trebuchet MS", sans-serif;
+  font-size: 0.75rem;
+}
+
+.account-avatar {
+  display: inline-grid;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  place-items: center;
+  border: 1px solid var(--gold);
+  border-radius: 50%;
+  background: rgb(217 173 86 / 10%);
+  color: var(--gold-light);
+  font-weight: 700;
+}
+
+.account-name {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 34px;
+  padding: 0.4rem 0.65rem;
+  text-decoration: none;
+}
+
+.auth-panel {
+  width: min(480px, 100%);
+  margin: clamp(1rem, 5vw, 4rem) auto;
+  padding: clamp(1.5rem, 5vw, 2.5rem);
+}
+
+.auth-heading {
+  margin-bottom: 1.5rem;
+}
+
+.auth-heading > p:last-child,
+.auth-signed-in > p {
+  color: var(--muted);
+}
+
+.auth-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.auth-message {
+  margin: 0;
+  padding: 0.75rem;
+  border: 1px solid var(--gold);
+  background: rgb(217 173 86 / 8%);
+  color: var(--gold-light);
+}
+
+.auth-switch {
+  margin: 1.25rem 0 0;
+  color: var(--muted);
+  text-align: center;
+}
+
+.auth-switch a {
+  color: var(--gold-light);
+}
+
+.auth-link {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
 .button {
   min-height: 42px;
   padding: 0.7rem 1rem;
@@ -886,6 +974,11 @@ input {
   .section-heading {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .hero-controls {
+    width: 100%;
+    justify-items: start;
   }
 
   .hero {

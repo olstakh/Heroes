@@ -1,7 +1,7 @@
 const TOURNAMENT_PATH_SEGMENT = "/tournaments/";
 
 export interface AppRoute {
-  page: "tournament" | "casual";
+  page: "tournament" | "casual" | "sign-in" | "sign-up";
   tournamentId?: string;
 }
 
@@ -18,9 +18,10 @@ export function getAppRoute(): AppRoute {
     }
   }
 
-  return {
-    page: window.location.hash === "#/casual" ? "casual" : "tournament"
-  };
+  if (window.location.hash === "#/casual") return { page: "casual" };
+  if (window.location.hash === "#/sign-in") return { page: "sign-in" };
+  if (window.location.hash === "#/sign-up") return { page: "sign-up" };
+  return { page: "tournament" };
 }
 
 export function getAppBasePath(): string {
