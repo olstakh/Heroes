@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { CasualGamesPage } from "./pages/CasualGamesPage";
+import { AuthPage } from "./pages/AuthPage";
 import { TournamentPage } from "./pages/TournamentPage";
 import { getAppRoute, type AppRoute } from "./utils/routing";
 
@@ -16,7 +17,9 @@ export function App() {
     };
   }, []);
 
-  return route.page === "casual"
-    ? <CasualGamesPage />
-    : <TournamentPage tournamentId={route.tournamentId} />;
+  if (route.page === "casual") return <CasualGamesPage />;
+  if (route.page === "sign-in" || route.page === "sign-up") {
+    return <AuthPage mode={route.page} />;
+  }
+  return <TournamentPage tournamentId={route.tournamentId} />;
 }
