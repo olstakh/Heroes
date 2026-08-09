@@ -41,7 +41,12 @@ export function AuthPage({ mode }: AuthPageProps) {
             emailRedirectTo: `${window.location.origin}${appBasePath}`
           }
         });
-        if (error) throw new Error(error.message);
+        if (error) {
+          if (error.message === "Database error saving new user") {
+            throw new Error("An account with this in-game username already exists.");
+          }
+          throw new Error(error.message);
+        }
 
         setMessage(
           data.session
