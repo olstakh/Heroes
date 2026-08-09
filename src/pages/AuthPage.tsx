@@ -4,6 +4,8 @@ import { useAuth } from "../auth/AuthContext";
 import { getSupabaseClient, isSupabaseConfigured } from "../services/supabase";
 import { getAppBasePath } from "../utils/routing";
 
+const DUPLICATE_PROFILE_ERROR = "Database error saving new user";
+
 interface AuthPageProps {
   mode: "sign-in" | "sign-up";
 }
@@ -42,7 +44,7 @@ export function AuthPage({ mode }: AuthPageProps) {
           }
         });
         if (error) {
-          if (error.message === "Database error saving new user") {
+          if (error.message === DUPLICATE_PROFILE_ERROR) {
             throw new Error("An account with this in-game username already exists.");
           }
           throw new Error(error.message);
